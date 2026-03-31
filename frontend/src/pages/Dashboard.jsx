@@ -19,8 +19,8 @@ import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, MockAction } from '../components/UI';
 
-const API_BASE = "http://localhost:3000/admin";
-const MOCK_BASE = "http://localhost:3000/mock";
+const API_BASE = "/admin";
+const MOCK_BASE = "/mock";
 
 export default function Dashboard({ searchQuery }) {
   const location = useLocation();

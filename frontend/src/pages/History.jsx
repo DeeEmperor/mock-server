@@ -16,7 +16,7 @@ import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../components/UI';
 
-const API_BASE = "http://localhost:3000/admin";
+const API_BASE = "/admin";
 
 export default function History() {
   const [logs, setLogs] = useState([]);

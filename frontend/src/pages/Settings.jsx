@@ -17,7 +17,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { cn } from '../components/UI';
 
-const API_BASE = "http://localhost:3000/admin";
+const API_BASE = "/admin";
 
 export default function Settings() {
   const [health, setHealth] = useState({ status: 'loading', uptime: 0, memory: 0 });
@@ -130,7 +130,7 @@ export default function Settings() {
                 </div>
                 <div className="flex items-center gap-2 p-1.5 bg-muted rounded-2xl border border-border group w-full md:w-auto">
                   <code className="px-4 py-2 text-sm font-mono font-bold text-primary truncate max-w-[200px] md:max-w-none">
-                    http://localhost:3000/mock
+                    {`${window.location.origin}/mock`}
                   </code>
                   <button 
                     onClick={copyUrl}

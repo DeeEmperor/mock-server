@@ -27,7 +27,7 @@ export default function Documentation() {
   const [copied, setCopied] = useState(false);
 
   const copyCurl = () => {
-    navigator.clipboard.writeText("curl -X GET http://localhost:3000/mock/test-api");
+    navigator.clipboard.writeText(`curl -X GET ${window.location.origin}/mock/test-api`);
     setCopied(true);
     toast.success("Curl command copied!");
     setTimeout(() => setCopied(false), 2000);
@@ -47,7 +47,7 @@ export default function Documentation() {
               <Server size={12} /> Base URL Configuration
             </p>
             <div className="flex items-center justify-between gap-4 bg-background p-3 rounded-lg border border-border group-hover:border-primary/30 transition-colors">
-              <code className="text-sm font-mono text-primary font-bold">http://localhost:3000/mock/{"{path}"}</code>
+              <code className="text-sm font-mono text-primary font-bold">{`${window.location.origin}/mock/{path}`}</code>
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
               All custom routes are prefixed with <code className="bg-muted px-1 rounded">/mock/</code> to separate them from administration logic.
@@ -273,7 +273,7 @@ export default function Documentation() {
               
               <div className="relative">
                 <pre className="p-5 bg-card border border-border rounded-3xl font-mono text-sm overflow-x-auto text-primary/80 shadow-inner group-hover:border-primary/30 transition-colors">
-                  <span className="text-muted-foreground">$</span> curl -X GET http://localhost:3000/mock/test-api
+                  <span className="text-muted-foreground">$</span> curl -X GET {`${window.location.origin}/mock/test-api`}
                 </pre>
                 <button 
                   onClick={copyCurl}
