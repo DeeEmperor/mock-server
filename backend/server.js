@@ -76,9 +76,49 @@ app.get('/admin/logs', async (req, res) => {
 app.delete('/admin/logs', async (req, res) => {
     try {
         await RequestLog.deleteMany({});
-        res.json({message: "Logs cleared"});
+        res.json({message: "History cleared"});
     } catch (error) {
         res.status(500).json({error: "Could not clear logs"})
+    }
+});
+
+// health check
+app.get('/admin/health', (req, res) => {
+    const status = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    res.json({ 
+        status, 
+        database: 'MongoDB',
+        uptime: process.uptime(),
+        memory: process.memoryUsage().heapUsed
+    });
+});
+
+// export mocks
+app.get('/admin/export', async (req, res) => {
+    try {
+        const mocks = await MockRoute.find();
+        res.json(mocks);
+    } catch (error) {
+        res.status(500).json({error: "Export failed"});
+    }
+});
+
+// import mocks
+app.post('/admin/import', async (req, res) => {
+    try {
+        const { mocks } = req.body;
+        if (!Array.isArray(mocks)) return res.status(400).json({error: "Invalid format"});
+        
+        // Basic cleanup and re-insert
+        await MockRoute.deleteMany({});
+        await MockRoute.insertMany(mocks.map(m => {
+            const { _id, ...rest } = m; // Remove old IDs
+            return rest;
+        }));
+        
+        res.json({message: `Imported ${mocks.length} mocks successfully`});
+    } catch (error) {
+        res.status(500).json({error: "Import failed"});
     }
 });
 
