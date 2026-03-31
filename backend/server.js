@@ -67,6 +67,7 @@ app.get('/admin/logs', async (req, res) => {
         const logs = await RequestLog.find().sort({createdAt: -1}).limit(100);
         res.json(logs);
     } catch (error) {
+        console.error("Error fetching logs:", error);
         res.status(500).json({error: "Could not fetch logs"})
     }
 });

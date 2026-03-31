@@ -1,5 +1,2 @@
-
 Mock server running on http://localhost:3000
 Connected to mongodb
-Incoming request: GET /mock/test/api;
-No mock found for test/api; (GET)
