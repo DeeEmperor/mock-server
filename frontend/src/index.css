@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(14.5% 0.005 249.33);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(14.5% 0.005 249.33);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(14.5% 0.005 249.33);
+  --color-primary: oklch(21.03% 0.006 285.88);
+  --color-primary-foreground: oklch(98.48% 0 0);
+  --color-secondary: oklch(96.74% 0.001 286.38);
+  --color-secondary-foreground: oklch(21.03% 0.006 285.88);
+  --color-muted: oklch(96.74% 0.001 286.38);
+  --color-muted-foreground: oklch(55.2% 0.014 285.94);
+  --color-accent: oklch(96.74% 0.001 286.38);
+  --color-accent-foreground: oklch(21.03% 0.006 285.88);
+  --color-destructive: oklch(62.8% 0.25 29.23);
+  --color-destructive-foreground: oklch(98.48% 0 0);
+  --color-border: oklch(92.1% 0.004 286.32);
+  --color-input: oklch(92.1% 0.004 286.32);
+  --color-ring: oklch(21.03% 0.006 285.88);
+  --radius: 0.5rem;
+
+  --font-sans: "Inter", "system-ui", "sans-serif";
+  --font-mono: "JetBrains Mono", "monospace";
+}
+
+@layer base {
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-background: oklch(14.5% 0.005 249.33);
+    --color-foreground: oklch(98.48% 0 0);
+    --color-card: oklch(14.5% 0.005 249.33);
+    --color-card-foreground: oklch(98.48% 0 0);
+    --color-popover: oklch(14.5% 0.005 249.33);
+    --color-popover-foreground: oklch(98.48% 0 0);
+    --color-primary: oklch(98.48% 0 0);
+    --color-primary-foreground: oklch(21.03% 0.006 285.88);
+    --color-secondary: oklch(26.97% 0.006 285.88);
+    --color-secondary-foreground: oklch(98.48% 0 0);
+    --color-muted: oklch(26.97% 0.006 285.88);
+    --color-muted-foreground: oklch(70.12% 0.012 285.91);
+    --color-accent: oklch(26.97% 0.006 285.88);
+    --color-accent-foreground: oklch(98.48% 0 0);
+    --color-destructive: oklch(30.6% 0.01 0);
+    --color-destructive-foreground: oklch(98.48% 0 0);
+    --color-border: oklch(26.97% 0.006 285.88);
+    --color-input: oklch(26.97% 0.006 285.88);
+    --color-ring: oklch(83.9% 0.012 285.88);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
