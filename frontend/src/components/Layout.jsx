@@ -69,11 +69,8 @@ export default function Layout({ children, searchQuery, setSearchQuery }) {
 
           <div className="p-6 border-t border-border mt-auto">
             <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-accent/50 border border-border/50">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                <span className="text-xs font-bold">JD</span>
-              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">Dave's Project</p>
+                <p className="text-sm font-medium truncate">mock server</p>
                 <p className="text-xs text-muted-foreground truncate">v1.0.0-beta</p>
               </div>
             </div>

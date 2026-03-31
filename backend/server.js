@@ -1,18 +1,26 @@
+require('dotenv').config();
 const express = require("express");
-const mongoose =  require("mongoose");
+const mongoose = require("mongoose");
 const { faker } = require("@faker-js/faker");
 const cors = require("cors");
+const path = require("path");
 const MockRoute = require("./models/MockRoute"); // the schema
 const RequestLog = require("./models/RequestLog"); // the log schema
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mock-server';
+
 app.use(cors());
 app.use(express.json());
 
-//connectio to mongo.
-mongoose.connect('mongodb://127.0.0.1:27017/mock-server')
-.then(() => console.log("Connected to mongodb"))
-.catch(err => console.log("Mongo connection error: ",err));
+// Serve static files from the frontend build
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// MongoDB connection
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ Connected to MongoDB'))
+    .catch(err => console.error('❌ MongoDB connection error:', err));
 
 //create a new mock
 // this is what the form will call to save a new API rule.
@@ -221,9 +229,11 @@ app.all('/mock/*path', async (req, res) => {
     }
 });
 
-// start server.
+// Catch-all route to serve the frontend index.html for SPA routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+});
 
-const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Mock server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
 });
