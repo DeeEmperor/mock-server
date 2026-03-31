@@ -158,8 +158,8 @@ function processDynamicData(obj) {
     return obj;
 }
 
-app.all('/mock/:path(.*)', async (req, res) => {
-    let requestedPath = req.params.path;
+app.all(/\/mock\/(.*)/, async (req, res) => {
+    let requestedPath = req.params[0];
     if (Array.isArray(requestedPath)) requestedPath = requestedPath.join('/');
     requestedPath = requestedPath || "";
     const requestedMethod = req.method;
@@ -230,7 +230,7 @@ app.all('/mock/:path(.*)', async (req, res) => {
 });
 
 // Catch-all route to serve the frontend index.html for SPA routing
-app.get('/:path(.*)', (req, res) => {
+app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
