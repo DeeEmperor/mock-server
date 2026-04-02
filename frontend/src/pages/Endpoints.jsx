@@ -30,7 +30,11 @@ export default function Endpoints({ searchQuery }) {
     try {
       setLoading(true);
       const res = await axios.get(`${API_BASE}/mocks`);
-      setMocks(res.data);
+      if (Array.isArray(res.data)) {
+        setMocks(res.data);
+      } else {
+        setMocks([]);
+      }
     } catch (err) {
       toast.error("Failed to fetch mocks");
     } finally {
@@ -41,6 +45,7 @@ export default function Endpoints({ searchQuery }) {
   useEffect(() => { fetchMocks(); }, []);
 
   const filteredMocks = useMemo(() => {
+    if (!Array.isArray(mocks)) return [];
     return mocks.filter(mock => 
       mock.path.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mock.method.toLowerCase().includes(searchQuery.toLowerCase())

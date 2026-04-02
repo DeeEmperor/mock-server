@@ -40,6 +40,7 @@ app.get('/admin/mocks', async (req, res) => {
         const mocks = await MockRoute.find().sort({createdAt: -1});
         res.json(mocks);
     } catch (error) {
+        console.error("Fetch mocks error:", error);
         res.status(500).json({error: "Could not fetch mocks"})
     }
 });

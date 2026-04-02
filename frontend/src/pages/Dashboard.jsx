@@ -13,7 +13,8 @@ import {
   Clock,
   Loader2,
   Pencil,
-  X
+  X,
+  Search
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,7 +45,12 @@ export default function Dashboard({ searchQuery }) {
     try {
       setLoading(true);
       const res = await axios.get(`${API_BASE}/mocks`);
-      setMocks(res.data);
+      if (Array.isArray(res.data)) {
+        setMocks(res.data);
+      } else {
+        setMocks([]);
+        console.error("Expected array but got:", res.data);
+      }
     } catch (err) {
       toast.error("Backend unreachable. Check port 3000.");
     } finally {
@@ -79,6 +85,7 @@ export default function Dashboard({ searchQuery }) {
 
   // Filtered Mocks
   const filteredMocks = useMemo(() => {
+    if (!Array.isArray(mocks)) return [];
     return mocks.filter(mock => 
       mock.path.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mock.method.toLowerCase().includes(searchQuery.toLowerCase())
