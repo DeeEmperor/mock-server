@@ -30,7 +30,8 @@ app.post('/admin/create', async (req, res) => {
         const newRoute = await MockRoute.create(req.body);
         res.status(201).json({ message: "Mock created", data: newRoute});
     } catch (error) {
-        res.status(400).json({error: "path already exists or invalid data."});
+        console.error("Create error:", error);
+        res.status(400).json({error: error.message || "path already exists or invalid data."});
     }
 });
 

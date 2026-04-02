@@ -52,7 +52,9 @@ export default function Dashboard({ searchQuery }) {
         console.error("Expected array but got:", res.data);
       }
     } catch (err) {
-      toast.error("Backend unreachable. Check port 3000.");
+      console.error("Fetch mocks error:", err);
+      const msg = err.response ? `Server error: ${err.response.status}` : "Backend unreachable. Check port 3000.";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -121,7 +123,8 @@ export default function Dashboard({ searchQuery }) {
       handleCancelEdit(); // Clear form and state
       fetchMocks();
     } catch (err) {
-      toast.error(editingId ? "Update failed." : "Failed to deploy. Check if path is unique.", { id: t });
+      const serverMsg = err.response?.data?.error;
+      toast.error(serverMsg || (editingId ? "Update failed." : "Failed to deploy."), { id: t });
     }
   };
 
