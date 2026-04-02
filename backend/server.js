@@ -18,9 +18,15 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // MongoDB connection
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+console.log('📡 Attempting to connect to MongoDB...');
+mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000 // Timeout after 5 seconds instead of buffering forever
+})
+    .then(() => console.log('✅ Connected to MongoDB successfully'))
+    .catch(err => {
+        console.error('❌ MongoDB connection error:', err.message);
+        console.error('Check if your IP is whitelisted on MongoDB Atlas (Allow 0.0.0.0/0 for Render).');
+    });
 
 //create a new mock
 // this is what the form will call to save a new API rule.
@@ -94,10 +100,13 @@ app.delete('/admin/logs', async (req, res) => {
 
 // health check
 app.get('/admin/health', (req, res) => {
-    const status = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    const readyState = mongoose.connection.readyState;
     res.json({ 
-        status, 
+        status: states[readyState] || 'unknown',
+        readyState,
         database: 'MongoDB',
+        usingDefaultUri: MONGODB_URI.includes('127.0.0.1'),
         uptime: process.uptime(),
         memory: process.memoryUsage().heapUsed
     });
