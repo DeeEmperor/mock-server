@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: mockflow
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm run start
+    envVars:
+      - key: MONGODB_URI
+        sync: false
