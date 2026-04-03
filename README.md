@@ -1,10 +1,10 @@
-# MockFlow 🚀
+# MockFlow
 
 MockFlow is a powerful, self-hosted Mock API Server designed for developers who need reliable, dynamic, and low-latency mock endpoints for testing and prototyping.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
-## ✨ Features
+## Features
 
 - **Dynamic Routing**: Define mock endpoints with ease using the intuitive React dashboard.
 - **Latency Simulation**: Simulate real-world network conditions by adding custom delays to your mock responses.
@@ -12,7 +12,7 @@ MockFlow is a powerful, self-hosted Mock API Server designed for developers who 
 - **Faker Integration**: Generate realistic mock data on the fly using built-in Faker.js templates.
 - **Universal Build**: A unified architecture that serves the frontend and backend from a single Node.js instance.
 
-## 🚀 Self-Hosting Guide
+## Self-Hosting Guide
 
 ### 1. Fork the Repository
 
@@ -36,7 +36,7 @@ MockFlow requires a MongoDB database to store your mock configurations and logs.
 4. When prompted, enter your `MONGODB_URI` (the connection string from Step 2).
 5. Once the build is complete, your private MockFlow instance will be live!
 
-## 🛠️ Local Development
+## Local Development
 
 If you want to run MockFlow locally:
 
@@ -61,4 +61,5 @@ If you want to run MockFlow locally:
 
 ---
 
-Built with ❤️ for the Developer Community.
+Built with love for the Developer Community.
+Dave! ❤️
