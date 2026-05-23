@@ -1,6 +1,6 @@
 # MockFlow
 
-MockFlow is a powerful, self-hosted Mock API Server designed for developers who need reliable, dynamic, and low-latency mock endpoints for testing and prototyping.
+MockFlow is a self-hosted Mock API Server designed for developers who need reliable, dynamic, and low-latency mock endpoints for testing and prototyping.
 
 ## Features
 
@@ -15,12 +15,12 @@ MockFlow is a powerful, self-hosted Mock API Server designed for developers who 
 
 ## Local Setup (Recommended)
 
-> **Requirements:** Node.js v18+. That's it — no database to install.
+> **Requirements:** Node.js v18+. That's it i.e. no database to install.
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mock-server.git
+git clone https://github.com/DeeEmperor/mock-server.git
 cd mock-server
 ```
 
@@ -60,8 +60,8 @@ http://localhost:3000/
 
 Use `/*` at the end of a path to match any sub-path:
 
-| Rule | Matches |
-|---|---|
+| Rule    | Matches                                  |
+| ------- | ---------------------------------------- |
 | `api/*` | `api/users`, `api/v1/posts`, `api/x/y/z` |
 
 Exact rules always take priority over wildcard rules.
@@ -90,4 +90,4 @@ Use the **Settings** page to export your entire mock configuration as a JSON fil
 
 ---
 
-Built with ❤️ for the Developer Community. Dave!
+Built with ❤️ . Dave!
