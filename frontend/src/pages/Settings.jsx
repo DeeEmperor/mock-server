@@ -40,7 +40,7 @@ export default function Settings() {
   }, []);
 
   const copyUrl = () => {
-    navigator.clipboard.writeText("http://localhost:3000/mock");
+    navigator.clipboard.writeText(`${window.location.origin}/mock`);
     setCopied(true);
     toast.success("Base URL copied!");
     setTimeout(() => setCopied(false), 2000);
@@ -96,7 +96,7 @@ export default function Settings() {
               icon={Database} 
               label="Database" 
               value={health.status === 'connected' ? "Connected" : "Disconnected"} 
-              sub="MongoDB v7.0.x"
+              sub="SQLite (local file)"
               active={health.status === 'connected'}
             />
             <HealthCard 
@@ -110,7 +110,7 @@ export default function Settings() {
               icon={HardDrive} 
               label="Memory Usage" 
               value={`${Math.round(health.memory / 1024 / 1024)} MB`} 
-              sub="Heap Heap Usage"
+              sub="Heap memory usage"
               active={true}
             />
           </div>
@@ -149,7 +149,7 @@ export default function Settings() {
                   <p className="text-sm text-muted-foreground">Memory-safe logging limit for performance.</p>
                 </div>
                 <span className="text-xs font-bold text-primary bg-primary/10 px-4 py-2 rounded-full border border-primary/20 uppercase tracking-widest">
-                  Auto-Rotate (100)
+                  Auto-Rotate (500)
                 </span>
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function Settings() {
 
             <div className="mt-8 pt-8 border-t border-border/50 text-center">
                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-50">
-                 Local Environment Control v1.0
+                 MockFlow v1.1.0
                </p>
             </div>
             

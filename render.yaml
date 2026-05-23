@@ -5,6 +5,7 @@ services:
     plan: free
     buildCommand: npm run build
     startCommand: npm run start
-    envVars:
-      - key: MONGODB_URI
-        sync: false
+    # Note: MockFlow now uses SQLite (file-based). Render's filesystem is ephemeral,
+    # meaning data will not persist across deploys on the free tier.
+    # For persistent cloud storage, consider upgrading to a paid Render plan with a disk,
+    # or use the local self-hosting path (recommended).

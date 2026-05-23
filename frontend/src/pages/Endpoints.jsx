@@ -53,7 +53,6 @@ export default function Endpoints({ searchQuery }) {
   }, [mocks, searchQuery]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this mock endpoint?")) return;
     try {
       await axios.delete(`${API_BASE}/delete/${id}`);
       setMocks(mocks.filter(m => m._id !== id));
@@ -61,6 +60,29 @@ export default function Endpoints({ searchQuery }) {
     } catch (err) {
       toast.error("Delete failed");
     }
+  };
+
+  const confirmDelete = (id, path) => {
+    toast((t) => (
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-semibold">Delete <code className="text-red-500 font-mono">/mock/{path}</code>?</p>
+        <p className="text-xs text-muted-foreground">This action cannot be undone.</p>
+        <div className="flex gap-2 mt-1">
+          <button
+            onClick={() => { toast.dismiss(t.id); handleDelete(id); }}
+            className="flex-1 py-1.5 text-xs font-bold bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="flex-1 py-1.5 text-xs font-bold bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors border border-border"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   const copyToClipboard = (path) => {
@@ -182,7 +204,7 @@ export default function Endpoints({ searchQuery }) {
                   <div className="w-[1px] h-6 bg-border mx-2" />
                   <MockAction 
                     icon={Trash2} 
-                    onClick={() => handleDelete(mock._id)}
+                    onClick={() => confirmDelete(mock._id, mock.path)}
                     danger
                     tooltip="Delete URL"
                   />

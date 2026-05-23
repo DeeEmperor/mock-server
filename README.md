@@ -2,64 +2,92 @@
 
 MockFlow is a powerful, self-hosted Mock API Server designed for developers who need reliable, dynamic, and low-latency mock endpoints for testing and prototyping.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
 ## Features
 
 - **Dynamic Routing**: Define mock endpoints with ease using the intuitive React dashboard.
+- **Wildcard Routes**: Use `api/*` to catch entire path families with a single rule.
+- **Advanced Matching**: Return different responses for the same URL based on headers, query params, or request body fields.
 - **Latency Simulation**: Simulate real-world network conditions by adding custom delays to your mock responses.
-- **History Tab**: Keep track of all incoming requests to your mock server with a detailed log of headers, body, and query parameters.
+- **History Tab**: Keep track of all incoming requests with a detailed log (auto-rotates at 500 entries).
 - **Faker Integration**: Generate realistic mock data on the fly using built-in Faker.js templates.
+- **Zero-dependency Storage**: Uses SQLite — no database server, no account, no setup. Data is stored in a local `.db` file.
 - **Universal Build**: A unified architecture that serves the frontend and backend from a single Node.js instance.
 
-## Self-Hosting Guide
+## Local Setup (Recommended)
 
-### 1. Fork the Repository
+> **Requirements:** Node.js v18+. That's it — no database to install.
 
-Click the **Fork** button at the top right of this page to create your own copy of the MockFlow repository.
+### 1. Clone the repository
 
-### 2. Set Up MongoDB Atlas
+```bash
+git clone https://github.com/YOUR_USERNAME/mock-server.git
+cd mock-server
+```
 
-MockFlow requires a MongoDB database to store your mock configurations and logs.
+### 2. Install dependencies
 
-1. Create a free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
-2. Create a new Cluster (the Shared Tier is free).
-3. In **Network Access**, add `0.0.0.0/0` (Allow access from anywhere) to ensure Render can connect.
-4. In **Database Access**, create a user with read/write permissions.
-5. Copy your **Connection String** (e.g., `mongodb+srv://<user>:<password>@cluster.mongodb.net/mockflow`).
+```bash
+npm run install-all
+```
 
-### 3. Deploy to Render
+### 3. Start the development server
 
-1. Click the **Deploy to Render** button above.
-2. Connect your GitHub account and select your forked repository.
-3. Render will automatically detect the `render.yaml` file.
-4. When prompted, enter your `MONGODB_URI` (the connection string from Step 2).
-5. Once the build is complete, your private MockFlow instance will be live!
+```bash
+npm run dev
+```
 
-## Local Development
+MockFlow will be running at **http://localhost:3000**.
 
-If you want to run MockFlow locally:
-
-1. Clone your fork:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/mock-server.git
-   cd mock-server
-   ```
-2. Install all dependencies:
-   ```bash
-   npm run install-all
-   ```
-3. Create a `.env` file in the backend directory or root:
-   ```env
-   MONGODB_URI=your_mongodb_connection_string
-   PORT=3000
-   ```
-4. Start the development environment:
-   ```bash
-   npm run dev
-   ```
+Your mock configurations and request logs are stored in `backend/mockflow.db` — a local SQLite file that is created automatically on first run and ignored by git.
 
 ---
 
-Built with love for the Developer Community.
-Dave! ❤️
+## How It Works
+
+Every mock endpoint you create is available at:
+
+```
+http://localhost:3000/mock/{your-path}
+```
+
+The admin dashboard (the UI) is available at:
+
+```
+http://localhost:3000/
+```
+
+### Wildcard Routes
+
+Use `/*` at the end of a path to match any sub-path:
+
+| Rule | Matches |
+|---|---|
+| `api/*` | `api/users`, `api/v1/posts`, `api/x/y/z` |
+
+Exact rules always take priority over wildcard rules.
+
+### Dynamic Faker Data
+
+Inject randomized data into response bodies:
+
+```json
+{
+  "name": "{{faker:person.fullName}}",
+  "email": "{{faker:internet.email}}",
+  "id": "{{faker:string.uuid}}"
+}
+```
+
+### Advanced Matching
+
+Define multiple responses for the same URL path by adding match rules. The server checks **header**, **query param**, or **body field** values to pick the right mock.
+
+---
+
+## Backup & Restore
+
+Use the **Settings** page to export your entire mock configuration as a JSON file and restore it at any time.
+
+---
+
+Built with ❤️ for the Developer Community. Dave!

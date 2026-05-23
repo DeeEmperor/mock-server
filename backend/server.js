@@ -1,15 +1,14 @@
 require('dotenv').config();
 const express = require("express");
-const mongoose = require("mongoose");
 const { faker } = require("@faker-js/faker");
 const cors = require("cors");
 const path = require("path");
-const MockRoute = require("./models/MockRoute"); // the schema
-const RequestLog = require("./models/RequestLog"); // the log schema
+const db = require("./db"); // Initializes SQLite and creates tables
+const MockRoute = require("./models/MockRoute");
+const RequestLog = require("./models/RequestLog");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mock-server';
 
 app.use(cors());
 app.use(express.json());
@@ -17,49 +16,37 @@ app.use(express.json());
 // Serve static files from the frontend build
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-// MongoDB connection
-console.log('📡 Attempting to connect to MongoDB...');
-mongoose.connect(MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000 // Timeout after 5 seconds instead of buffering forever
-})
-    .then(() => console.log('✅ Connected to MongoDB successfully'))
-    .catch(err => {
-        console.error('❌ MongoDB connection error:', err.message);
-        console.error('Check if your IP is whitelisted on MongoDB Atlas (Allow 0.0.0.0/0 for Render).');
-    });
+console.log(' SQLite database ready — mockflow.db');
 
-//create a new mock
-// this is what the form will call to save a new API rule.
+// ─── ADMIN ROUTES ────────────────────────────────────────────────────────────
 
-app.post('/admin/create', async (req, res) => {
+// Create a new mock
+app.post('/admin/create', (req, res) => {
     try {
-        const newRoute = await MockRoute.create(req.body);
-        res.status(201).json({ message: "Mock created", data: newRoute});
+        const newRoute = MockRoute.create(req.body);
+        res.status(201).json({ message: "Mock created", data: newRoute });
     } catch (error) {
         console.error("Create error:", error);
-        res.status(400).json({error: error.message || "path already exists or invalid data."});
+        res.status(400).json({ error: error.message || "Invalid data." });
     }
 });
 
-// get all mocks 
-app.get('/admin/mocks', async (req, res) => {
+// Get all mocks
+app.get('/admin/mocks', (req, res) => {
     try {
-        const mocks = await MockRoute.find().sort({createdAt: -1});
+        const mocks = MockRoute.find();
         res.json(mocks);
     } catch (error) {
         console.error("Fetch mocks error:", error);
-        res.status(500).json({error: "Could not fetch mocks"})
+        res.status(500).json({ error: "Could not fetch mocks" });
     }
 });
 
-// update a mock
-app.put('/admin/update/:id', async (req, res) => {
+// Update a mock
+app.put('/admin/update/:id', (req, res) => {
     try {
-        const updatedMock = await MockRoute.findByIdAndUpdate(
-            req.params.id, 
-            req.body, 
-            { new: true }
-        );
+        const updatedMock = MockRoute.update(req.params.id, req.body);
+        if (!updatedMock) return res.status(404).json({ error: "Mock not found" });
         res.json({ message: "Mock updated", data: updatedMock });
     } catch (error) {
         console.error("Update error:", error);
@@ -67,90 +54,96 @@ app.put('/admin/update/:id', async (req, res) => {
     }
 });
 
-// delete a mock
-app.delete('/admin/delete/:id', async (req, res) => {
+// Delete a mock
+app.delete('/admin/delete/:id', (req, res) => {
     try {
-        await MockRoute.findByIdAndDelete(req.params.id);
-        res.json({message: "Mock deleted"});
+        MockRoute.delete(req.params.id);
+        res.json({ message: "Mock deleted" });
     } catch (error) {
-        res.status(500).json({error: "Could not delete mock"})
+        res.status(500).json({ error: "Could not delete mock" });
     }
-})
+});
 
-// get all logs
-app.get('/admin/logs', async (req, res) => {
+// Get all logs
+app.get('/admin/logs', (req, res) => {
     try {
-        const logs = await RequestLog.find().sort({createdAt: -1}).limit(100);
+        const logs = RequestLog.find(100);
         res.json(logs);
     } catch (error) {
         console.error("Error fetching logs:", error);
-        res.status(500).json({error: "Could not fetch logs"})
+        res.status(500).json({ error: "Could not fetch logs" });
     }
 });
 
-// clear all logs
-app.delete('/admin/logs', async (req, res) => {
+// Clear all logs
+app.delete('/admin/logs', (req, res) => {
     try {
-        await RequestLog.deleteMany({});
-        res.json({message: "History cleared"});
+        RequestLog.deleteAll();
+        res.json({ message: "History cleared" });
     } catch (error) {
-        res.status(500).json({error: "Could not clear logs"})
+        res.status(500).json({ error: "Could not clear logs" });
     }
 });
 
-// health check
+// Health check
 app.get('/admin/health', (req, res) => {
-    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-    const readyState = mongoose.connection.readyState;
-    res.json({ 
-        status: states[readyState] || 'unknown',
-        readyState,
-        database: 'MongoDB',
-        usingDefaultUri: MONGODB_URI.includes('127.0.0.1'),
+    let dbStatus = 'disconnected';
+    try {
+        // A simple query to confirm SQLite is alive
+        db.prepare('SELECT 1').get();
+        dbStatus = 'connected';
+    } catch (e) {
+        dbStatus = 'error';
+    }
+
+    res.json({
+        status: dbStatus,
+        database: 'SQLite',
         uptime: process.uptime(),
         memory: process.memoryUsage().heapUsed
     });
 });
 
-// export mocks
-app.get('/admin/export', async (req, res) => {
+// Export mocks
+app.get('/admin/export', (req, res) => {
     try {
-        const mocks = await MockRoute.find();
+        const mocks = MockRoute.find();
         res.json(mocks);
     } catch (error) {
-        res.status(500).json({error: "Export failed"});
+        res.status(500).json({ error: "Export failed" });
     }
 });
 
-// import mocks
-app.post('/admin/import', async (req, res) => {
+// Import mocks
+app.post('/admin/import', (req, res) => {
     try {
         const { mocks } = req.body;
-        if (!Array.isArray(mocks)) return res.status(400).json({error: "Invalid format"});
-        
-        // Basic cleanup and re-insert
-        await MockRoute.deleteMany({});
-        await MockRoute.insertMany(mocks.map(m => {
-            const { _id, ...rest } = m; // Remove old IDs
-            return rest;
-        }));
-        
-        res.json({message: `Imported ${mocks.length} mocks successfully`});
+        if (!Array.isArray(mocks)) return res.status(400).json({ error: "Invalid format" });
+
+        MockRoute.deleteAll();
+        MockRoute.insertMany(mocks.map(({ _id, id, createdAt, updatedAt, ...rest }) => rest));
+
+        res.json({ message: `Imported ${mocks.length} mocks successfully` });
     } catch (error) {
-        res.status(500).json({error: "Import failed"});
+        res.status(500).json({ error: "Import failed" });
     }
 });
 
-// Helper to process dynamic fake data
+// ─── FAKER HELPER ────────────────────────────────────────────────────────────
+
 function processDynamicData(obj) {
     if (typeof obj === 'string') {
-        return obj.replace(/\{\{faker:([^}]+)\}\}/g, (match, path) => {
+        return obj.replace(/\{\{faker:([^}]+)\}\}/g, (match, fakerPath) => {
             try {
-                // path like 'name.fullName' or 'internet.email'
-                const parts = path.split('.');
+                const parts = fakerPath.trim().split('.');
                 let current = faker;
                 for (const part of parts) {
-                    current = current[part];
+                    // Case-insensitive key lookup so fullname === fullName === FullName
+                    const key = Object.keys(current).find(
+                        k => k.toLowerCase() === part.toLowerCase()
+                    );
+                    if (!key) return match; // unknown path segment — return tag as-is
+                    current = current[key];
                 }
                 return typeof current === 'function' ? current() : match;
             } catch (e) {
@@ -169,48 +162,82 @@ function processDynamicData(obj) {
     return obj;
 }
 
-app.all('/mock/*path', async (req, res) => {
+// ─── RULE MATCHING HELPER ────────────────────────────────────────────────────
+
+// Returns true if ALL rules in a mock's matchRules are satisfied by the request
+function rulesMatch(mock, req) {
+    if (!mock.matchRules || mock.matchRules.length === 0) return false;
+    return mock.matchRules.every(rule => {
+        if (rule.type === 'header') {
+            return req.headers[rule.key.toLowerCase()] === rule.value;
+        }
+        if (rule.type === 'query') {
+            return req.query[rule.key] === rule.value;
+        }
+        if (rule.type === 'body') {
+            return String(req.body?.[rule.key]) === rule.value;
+        }
+        return false;
+    });
+}
+
+// ─── MOCK RESOLUTION (two-pass: exact → wildcard) ────────────────────────────
+
+function resolveMock(requestedPath, requestedMethod, req) {
+    // ── Pass 1: Exact path match ──────────────────────────────────────────
+    const exactMocks = MockRoute.find({ path: requestedPath, method: requestedMethod });
+
+    if (exactMocks.length > 0) {
+        // Prefer a mock whose rules all match
+        const ruleMatch = exactMocks.find(m => rulesMatch(m, req));
+        if (ruleMatch) return ruleMatch;
+
+        // Fall back to a mock with no rules
+        const fallback = exactMocks.find(m => !m.matchRules || m.matchRules.length === 0);
+        if (fallback) return fallback;
+    }
+
+    // ── Pass 2: Wildcard match ────────────────────────────────────────────
+    // Fetch all mocks where path ends with /*
+    const wildcardMocks = MockRoute.findWildcards(requestedMethod);
+
+    // Filter to those whose prefix matches the requested path
+    const matching = wildcardMocks.filter(m => {
+        const prefix = m.path.slice(0, -2); // strip trailing /*
+        return requestedPath === prefix || requestedPath.startsWith(prefix + '/');
+    });
+
+    if (matching.length > 0) {
+        // Prefer a wildcard mock whose rules all match
+        const ruleMatch = matching.find(m => rulesMatch(m, req));
+        if (ruleMatch) return ruleMatch;
+
+        // Fall back to one with no rules
+        const fallback = matching.find(m => !m.matchRules || m.matchRules.length === 0);
+        if (fallback) return fallback;
+    }
+
+    return null;
+}
+
+// ─── MOCK ENGINE ──────────────────────────────────────────────────────────────
+
+app.all('/mock/*path', (req, res) => {
     let requestedPath = req.params.path;
     if (Array.isArray(requestedPath)) requestedPath = requestedPath.join('/');
     requestedPath = requestedPath || "";
-    const requestedMethod = req.method;
-
-    console.log(`Incoming request: ${requestedMethod} /mock/${JSON.stringify(requestedPath)}`);
-
     if (requestedPath.startsWith('/')) requestedPath = requestedPath.substring(1);
 
-    //this will search for a rule that matches this path + http method
-    const mocks = await MockRoute.find({path: requestedPath, method: requestedMethod})
+    const requestedMethod = req.method;
+    console.log(`Incoming request: ${requestedMethod} /mock/${requestedPath}`);
 
-    let mock = null;
-    if (mocks.length > 0) {
-        // Try to find a specific match first
-        mock = mocks.find(m => {
-            if (!m.matchRules || m.matchRules.length === 0) return false;
-            return m.matchRules.every(rule => {
-                if (rule.type === 'header') {
-                    // normalize header key from request
-                    const reqVal = req.headers[rule.key.toLowerCase()];
-                    return reqVal === rule.value;
-                }
-                if (rule.type === 'query') {
-                    return req.query[rule.key] === rule.value;
-                }
-                return false;
-            });
-        });
-
-        // If no specific match, pick the one with NO rules (fallback)
-        if (!mock) {
-            mock = mocks.find(m => !m.matchRules || m.matchRules.length === 0);
-        }
-    }
+    const mock = resolveMock(requestedPath, requestedMethod, req);
 
     if (mock) {
-        console.log(`Found mock for ${requestedPath}: status ${mock.statusCode}, delay ${mock.delay}`);
-        
-        // Log the request
-        await RequestLog.create({
+        console.log(`✅ Matched: ${requestedPath} → status ${mock.statusCode}, delay ${mock.delay}ms`);
+
+        // Log the hit (rotation handled inside RequestLog.create)
+        RequestLog.create({
             path: requestedPath,
             method: requestedMethod,
             headers: req.headers,
@@ -223,11 +250,12 @@ app.all('/mock/*path', async (req, res) => {
             const processedBody = processDynamicData(mock.responseBody);
             res.status(Number(mock.statusCode)).json(processedBody);
         }, Number(mock.delay));
+
     } else {
-        console.log(`No mock found for ${requestedPath} (${requestedMethod})`);
-        
-        // Log the failed request
-        await RequestLog.create({
+        console.log(`No mock found: ${requestedMethod} /mock/${requestedPath}`);
+
+        // Log the miss
+        RequestLog.create({
             path: requestedPath,
             method: requestedMethod,
             headers: req.headers,
@@ -236,15 +264,16 @@ app.all('/mock/*path', async (req, res) => {
             statusCode: 404
         });
 
-        res.status(404).json({error: "No mock rule found for this path."})
+        res.status(404).json({ error: "No mock rule found for this path." });
     }
 });
 
-// Catch-all route to serve the frontend index.html for SPA routing
+// ─── SPA FALLBACK ─────────────────────────────────────────────────────────────
+
 app.get('/*any', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(` MockFlow running on http://localhost:${PORT}`);
 });

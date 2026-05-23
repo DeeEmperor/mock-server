@@ -72,13 +72,19 @@ export default function Dashboard({ searchQuery }) {
   }, [location.state]);
 
   // JSON Validation Logic
+  // Normalizes {{faker:...}} tags before parsing so bare tags don't cause false errors
+  function normalizeFakerTags(str) {
+    // Wrap any faker tag NOT already inside quotes with double quotes
+    return str.replace(/(?<!")(\{\{faker:[^}]+\}\})(?!")/g, '"$1"');
+  }
+
   useEffect(() => {
     if (!formData.responseBody.trim()) {
       setIsValidJson(true);
       return;
     }
     try {
-      JSON.parse(formData.responseBody);
+      JSON.parse(normalizeFakerTags(formData.responseBody));
       setIsValidJson(true);
     } catch (e) {
       setIsValidJson(false);
@@ -109,7 +115,7 @@ export default function Dashboard({ searchQuery }) {
         ...formData, 
         statusCode: Number(formData.statusCode),
         delay: Number(formData.delay),
-        responseBody: JSON.parse(formData.responseBody) 
+        responseBody: JSON.parse(normalizeFakerTags(formData.responseBody)) 
       };
 
       if (editingId) {
@@ -156,6 +162,29 @@ export default function Dashboard({ searchQuery }) {
     } catch (err) {
       toast.error("Delete failed");
     }
+  };
+
+  const confirmDelete = (id, path) => {
+    toast((t) => (
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-semibold">Delete <code className="text-red-500 font-mono">/mock/{path}</code>?</p>
+        <p className="text-xs text-muted-foreground">This action cannot be undone.</p>
+        <div className="flex gap-2 mt-1">
+          <button
+            onClick={() => { toast.dismiss(t.id); handleDelete(id); }}
+            className="flex-1 py-1.5 text-xs font-bold bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="flex-1 py-1.5 text-xs font-bold bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors border border-border"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   const copyToClipboard = (path) => {
@@ -293,6 +322,7 @@ export default function Dashboard({ searchQuery }) {
                     >
                       <option value="header">Header</option>
                       <option value="query">Query</option>
+                      <option value="body">Body</option>
                     </select>
                     <input 
                       placeholder="Key"
@@ -386,7 +416,11 @@ export default function Dashboard({ searchQuery }) {
                 <AlertCircle size={18} className="text-primary shrink-0 mt-0.5" />
                 <div className="text-xs text-muted-foreground leading-relaxed">
                   <p className="font-bold text-primary mb-1.5 text-sm underline decoration-primary/30 underline-offset-4">Pro Tip: Dynamic Data</p>
-                  <p>Inject randomized data into your responses by using <code className="bg-card border border-border px-1.5 py-0.5 rounded font-mono text-[10px]">{`{{faker:person.fullName}}`}</code> or <code className="bg-card border border-border px-1.5 py-0.5 rounded font-mono text-[10px]">{`{{faker:internet.email}}`}</code> directly in your JSON body.</p>
+                  <p>Inject randomized data using Faker tags — quotes are optional. Both forms work:</p>
+                  <div className="mt-2 space-y-1">
+                    <code className="block bg-card border border-border px-1.5 py-0.5 rounded font-mono text-[10px]">{`"name": {{faker:person.fullName}}`}</code>
+                    <code className="block bg-card border border-border px-1.5 py-0.5 rounded font-mono text-[10px]">{`"email": "{{faker:internet.email}}"`}</code>
+                  </div>
                 </div>
               </div>
             </div>
@@ -513,7 +547,7 @@ export default function Dashboard({ searchQuery }) {
                     <div className="w-[1px] h-6 bg-border mx-1" />
                     <MockAction 
                       icon={Trash2} 
-                      onClick={() => handleDelete(mock._id)}
+                      onClick={() => confirmDelete(mock._id, mock.path)}
                       danger
                       tooltip="Delete"
                     />

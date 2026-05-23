@@ -4,3 +4,8 @@ dist/
 .DS_Store
 .env.local
 .env.production
+
+# SQLite database — created automatically on first run, never commit
+backend/mockflow.db
+backend/mockflow.db-shm
+backend/mockflow.db-wal

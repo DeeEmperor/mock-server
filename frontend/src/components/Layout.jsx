@@ -28,7 +28,7 @@ export default function Layout({ children, searchQuery, setSearchQuery }) {
   ];
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/10">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground selection:bg-primary/10">
       {/* MOBILE OVERLAY */}
       {isSidebarOpen && (
         <div 
@@ -39,7 +39,7 @@ export default function Layout({ children, searchQuery, setSearchQuery }) {
 
       {/* SIDEBAR */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transition-transform duration-300 ease-in-out md:translate-x-0 md:static",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transition-transform duration-300 ease-in-out md:translate-x-0 md:relative md:flex md:flex-col",
         !isSidebarOpen && "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
@@ -70,8 +70,8 @@ export default function Layout({ children, searchQuery, setSearchQuery }) {
           <div className="p-6 border-t border-border mt-auto">
             <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-accent/50 border border-border/50">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">mock server</p>
-                <p className="text-xs text-muted-foreground truncate">v1.0.0-beta</p>
+                <p className="text-sm font-medium truncate">MockFlow</p>
+                <p className="text-xs text-muted-foreground truncate">v1.1.0</p>
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function Layout({ children, searchQuery, setSearchQuery }) {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* TOP HEADER */}
         <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40 flex items-center justify-between px-8">
           <div className="flex items-center gap-4 flex-1">
@@ -98,9 +98,11 @@ export default function Layout({ children, searchQuery, setSearchQuery }) {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hidden sm:block">
-              <Clock size={20} />
-            </button>
+            <Link to="/history">
+              <button className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hidden sm:block" title="View History">
+                <Clock size={20} />
+              </button>
+            </Link>
             <div className="h-4 w-[1px] bg-border hidden sm:block" />
             <Link to="/">
               <button className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 transition-all active:translate-y-0">

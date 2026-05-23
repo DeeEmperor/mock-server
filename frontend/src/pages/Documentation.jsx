@@ -67,27 +67,27 @@ export default function Documentation() {
       title: "Wildcard Routes",
       icon: Globe,
       path: "/endpoints",
-      content: "Master the power of flexible path matching using the asterisk syntax.",
+      content: "Catch entire path families with a single trailing wildcard rule.",
       details: (
         <div className="space-y-4 mt-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Using <code className="text-primary font-bold">*</code> matches any nested sub-path. This is perfect for mocking entire modules with one rule.
+            End any path with <code className="text-primary font-bold">/*</code> to match that prefix and all sub-paths beneath it.
           </p>
           <div className="grid grid-cols-2 gap-3 text-[11px] font-mono">
             <div className="p-2 bg-muted rounded border border-border">
-              <p className="text-muted-foreground mb-1 font-sans font-bold uppercase tracking-tighter">Route</p>
+              <p className="text-muted-foreground mb-1 font-sans font-bold uppercase tracking-tighter">Rule Path</p>
               <p>api/*</p>
             </div>
             <div className="p-2 bg-muted rounded border border-border">
               <p className="text-muted-foreground mb-1 font-sans font-bold uppercase tracking-tighter">Matches</p>
-              <p>api/users, api/v1/posts</p>
+              <p>api/users, api/v1/posts, api/x/y/z</p>
             </div>
           </div>
-          <div className="p-3 bg-orange-500/5 border border-orange-500/10 rounded-xl flex gap-3">
-             <AlertTriangle size={16} className="text-orange-500 shrink-0 mt-0.5" />
-             <p className="text-[11px] text-muted-foreground">
-               <span className="font-bold text-orange-600">Prioritization:</span> Exact matches (e.g. <code className="bg-card px-1 italic">/api/users</code>) are always prioritized over wildcard routes (e.g. <code className="bg-card px-1 italic">/api/*</code>).
-             </p>
+          <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-xl flex gap-3">
+            <Info size={14} className="text-blue-500 shrink-0 mt-0.5" />
+            <p className="text-[11px] text-muted-foreground">
+              <span className="font-bold text-blue-600">Priority:</span> Exact rules always beat wildcard rules. If both <code className="bg-card px-1 italic">api/users</code> and <code className="bg-card px-1 italic">api/*</code> exist, <code className="bg-card px-1">api/users</code> wins for that path.
+            </p>
           </div>
         </div>
       )
@@ -126,24 +126,28 @@ export default function Documentation() {
       title: "Advanced Matching",
       icon: Layers,
       path: "/endpoints",
-      content: "Return different responses for the same URL based on request metadata.",
+      content: "Return different responses for the same URL based on headers, query params, or request body fields.",
       details: (
         <div className="space-y-3 mt-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Add rules to match specific **Headers** or **Query Parameters**.
+            Add rules to match specific <strong>Headers</strong>, <strong>Query Parameters</strong>, or <strong>Body fields</strong>. All rules in a set must pass for the mock to be selected.
           </p>
           <div className="p-3 bg-muted/50 rounded-xl border border-border space-y-2">
             <div className="flex gap-2 items-center">
               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              <p className="text-[11px] font-medium text-foreground">Header Match: <code className="text-primary font-mono font-bold">x-match: test</code></p>
+              <p className="text-[11px] font-medium text-foreground">Header: <code className="text-primary font-mono font-bold">x-role: admin</code></p>
             </div>
             <div className="flex gap-2 items-center">
               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              <p className="text-[11px] font-medium text-foreground">Query Match: <code className="text-primary font-mono font-bold">?role=admin</code></p>
+              <p className="text-[11px] font-medium text-foreground">Query: <code className="text-primary font-mono font-bold">?env=staging</code></p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <p className="text-[11px] font-medium text-foreground">Body: <code className="text-emerald-600 font-mono font-bold">role = admin</code> <span className="text-[10px] text-muted-foreground">(top-level key)</span></p>
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground">
-            The server first looks for any rule that matches perfectly before falling back to the default response.
+            The server checks for a rules match first, then falls back to the default (no-rules) mock for that path.
           </p>
         </div>
       )
@@ -290,7 +294,7 @@ export default function Documentation() {
                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                  <span>Server Status: Online</span>
                </div>
-               <span>v1.0.0-beta</span>
+               <span>v1.1.0</span>
             </div>
           </div>
         </div>
